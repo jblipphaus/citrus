@@ -15,7 +15,10 @@
   </properties>
   
   <body>
-    <release version="1.2-SNAPSHOT" date="17.08.2010" description="Latest snapshot release">
+    <release version="1.2-SNAPSHOT" date="19.08.2010" description="Latest snapshot release">
+    	<action dev="jblipphaus" type="add">
+          #317 Create variable with Groovy
+        </action>
         <action dev="christophd" type="add">
           #315 HTTP headers in SOAP message validation
         </action>

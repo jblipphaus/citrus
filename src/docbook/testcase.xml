@@ -152,6 +152,40 @@
         which represent the global variables.</para>
     </section>
     
+    <section id="testcase-script-variables">
+        <title>Variable creation with scripts</title>
+        
+        <programlisting>&lt;variables&gt;
+    &lt;variable name=&quot;var1&quot;&gt;
+        &lt;value&gt;
+            &lt;groovy&gt;
+                &lt;![CDATA[
+                    a = 4 * 6
+                    b = &quot;Citrus&quot;
+                    return a
+                ]]&gt;
+            &lt;/groovy&gt;
+        &lt;/value&gt;
+    &lt;/variable&gt;
+    &lt;variable name=&quot;var2&quot;&gt;
+        &lt;value&gt;
+            &lt;javascript&gt;
+                &lt;![CDATA[
+                    5 + 8
+                ]]&gt;
+            &lt;/javascript&gt;
+        &lt;/value&gt;
+    &lt;/variable&gt;
+&lt;/variables&gt;</programlisting>
+        
+        <para>Test variables can also be defined via inline scripts (e.g. Groovy). At this time Groovy and JavaScript are supported.</para>
+        
+        <para>You have to use the &lt;value&gt; tags in which you have to define the script engine to use with additional tags named
+        after the script engine you wish to use. The value of the variable will be the result of the last operation performed in the script.</para>
+        
+        <para>The script itself has to be put between the script tags. The use of <literal>&lt;![CDATA[ ]]&gt;</literal> is recommended.</para>
+    </section>
+    
     <section id="testcase-actions">
         <title>Actions</title>
         

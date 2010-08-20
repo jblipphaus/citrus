@@ -35,6 +35,7 @@ import org.w3c.dom.Element;
 import com.consol.citrus.TestCase;
 import com.consol.citrus.TestCaseMetaInfo;
 import com.consol.citrus.TestCaseMetaInfo.Status;
+import com.consol.citrus.variable.ScriptVariables;
 
 /**
  * Bean definition parser for test case.
@@ -111,7 +112,15 @@ public class TestCaseParser implements BeanDefinitionParser {
             List<?> variableElements = DomUtils.getChildElementsByTagName(testVariablesElement, "variable");
             for (Iterator<?> iter = variableElements.iterator(); iter.hasNext();) {
                 Element variableDefinition = (Element) iter.next();
-                testVariables.put(variableDefinition.getAttribute("name"), variableDefinition.getAttribute("value"));
+                Element variableValueDefinition = DomUtils.getChildElementByTagName(variableDefinition, "value");
+                if (variableValueDefinition == null) {
+                	testVariables.put(variableDefinition.getAttribute("name"), variableDefinition.getAttribute("value"));
+                } else {
+                	Element scriptVariableDefinition = DOMUtil.getFirstChildElement(variableValueDefinition);
+                	String scriptEngine = scriptVariableDefinition.getTagName();
+                	String script = scriptVariableDefinition.getTextContent();
+                	testVariables.put(variableDefinition.getAttribute("name"), ScriptVariables.getValue(scriptEngine, script));
+                }
             }
             testcase.addPropertyValue("variableDefinitions", testVariables);
         }
