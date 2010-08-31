@@ -67,6 +67,9 @@ public class ReceiveMessageAction extends AbstractTestAction {
     
     /** Receive timeout */
     private long receiveTimeout = 0L;
+    
+    /** Receive timeout retry interval */
+    private long receiveTimeoutInterval = 0L;
 
     /** Control message payload defined in external file resource */
     private Resource messageResource;
@@ -111,9 +114,15 @@ public class ReceiveMessageAction extends AbstractTestAction {
                 }
                 
                 if(receiveTimeout > 0) {
-                    receivedMessage = messageReceiver.receiveSelected(
-                            context.replaceDynamicContentInString(messageSelectorString), 
-                            receiveTimeout);
+                    if (receiveTimeoutInterval > 0) {
+                        receivedMessage = messageReceiver.receiveSelected(
+                                context.replaceDynamicContentInString(messageSelectorString), 
+                                receiveTimeout, receiveTimeoutInterval);
+                    } else {
+                        receivedMessage = messageReceiver.receiveSelected(
+                                context.replaceDynamicContentInString(messageSelectorString), 
+                                receiveTimeout);
+                    }
                 } else {
                     receivedMessage = messageReceiver.receiveSelected(
                             context.replaceDynamicContentInString(messageSelectorString));
@@ -127,14 +136,19 @@ public class ReceiveMessageAction extends AbstractTestAction {
                 }
                 
                 if(receiveTimeout > 0) {
-                    receivedMessage = messageReceiver
-                            .receiveSelected(constructedMessageSelector, receiveTimeout);
+                    if (receiveTimeoutInterval > 0) {
+                        receivedMessage = messageReceiver
+                                .receiveSelected(constructedMessageSelector, receiveTimeout, receiveTimeoutInterval);
+                    } else {
+                        receivedMessage = messageReceiver
+                        .receiveSelected(constructedMessageSelector, receiveTimeout);
+                    }
                 } else {
                     receivedMessage = messageReceiver
                             .receiveSelected(constructedMessageSelector);
                 }
             } else {
-                receivedMessage = receiveTimeout > 0 ? messageReceiver.receive(receiveTimeout) : messageReceiver.receive();
+                receivedMessage = receiveTimeout > 0 ? receiveTimeoutInterval > 0 ? messageReceiver.receive(receiveTimeout, receiveTimeoutInterval) : messageReceiver.receive(receiveTimeout) : messageReceiver.receive();
             }
 
             if (receivedMessage == null) {
@@ -350,6 +364,15 @@ public class ReceiveMessageAction extends AbstractTestAction {
      */
     public void setReceiveTimeout(long receiveTimeout) {
         this.receiveTimeout = receiveTimeout;
+    }
+    
+    /**
+     * Sets the receive timeout retry interval.
+     *
+     * @param receiveTimeoutInterval the new receive timeout retry interval
+     */
+    public void setReceiveTimeoutInterval(long receiveTimeoutInterval) {
+        this.receiveTimeoutInterval = receiveTimeoutInterval;
     }
 
     /**

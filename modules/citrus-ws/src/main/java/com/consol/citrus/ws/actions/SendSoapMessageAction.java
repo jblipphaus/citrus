@@ -49,19 +49,43 @@ public class SendSoapMessageAction extends SendMessageAction {
     /** SOAP attachment */
     private SoapAttachment attachment = new SoapAttachment();
     
+    /** True if send action shall be forked */
+    private Boolean forkSendAction;
+    
     /**
-     * @see com.consol.citrus.actions.SendMessageAction#execute(com.consol.citrus.context.TestContext)
+     * Inner class for threaded execution of the send message action.
      */
-    @Override
-    public void execute(final TestContext context) {
+    private class ForkExecuterTask implements Runnable {
+        
+        /** The context. */
+        private final TestContext context;
+        
+        /**
+         * Instantiates a new fork executer task.
+         *
+         * @param context the context
+         */
+        public ForkExecuterTask(final TestContext context) {
+            this.context = context;
+        }
+
+        /**
+         * @see java.lang.Runnable#run()
+         */
+        public void run() {
+            privateExecute(context);
+        }
+    }
+    
+    /**
+     * Private execution method that can be either called directly or through Runnbale inner class.
+     *
+     * @param context the context
+     */
+    private void privateExecute(final TestContext context) {
         Message<?> message = createMessage(context);
         
         context.createVariablesFromHeaderValues(extractHeaderValues, message.getHeaders());
-        
-        if(!(messageSender instanceof WebServiceMessageSender)) {
-            throw new CitrusRuntimeException("Sending SOAP messages requires a " +
-            		"'com.consol.citrus.ws.message.WebServiceMessageSender' but was '" + messageSender.getClass().getName() + "'");
-        }
         
         String attachmentContent = null;
         try {
@@ -70,7 +94,7 @@ public class SendSoapMessageAction extends SendMessageAction {
             } else if(attachmentResource != null) {
                 attachmentContent = context.replaceDynamicContentInString(FileUtils.readToString(attachmentResource));
             }
-        
+            
             if(attachmentContent != null) {
                 attachment.setContent(attachmentContent);
                 ((WebServiceMessageSender)messageSender).send(message, attachment);
@@ -81,6 +105,23 @@ public class SendSoapMessageAction extends SendMessageAction {
             throw new CitrusRuntimeException(e);
         } catch (ParseException e) {
             throw new CitrusRuntimeException(e);
+        }
+    }
+    
+    /**
+     * @see com.consol.citrus.actions.SendMessageAction#execute(com.consol.citrus.context.TestContext)
+     */
+    @Override
+    public void execute(final TestContext context) {
+        if(!(messageSender instanceof WebServiceMessageSender)) {
+            throw new CitrusRuntimeException("Sending SOAP messages requires a " +
+                    "'com.consol.citrus.ws.message.WebServiceMessageSender' but was '" + messageSender.getClass().getName() + "'");
+        }
+        
+        if (forkSendAction != null && forkSendAction) {
+            ((WebServiceMessageSender)messageSender).getTaskExecutor().execute(new ForkExecuterTask(context));
+        } else {
+            privateExecute(context);
         }
     }
     
@@ -122,5 +163,15 @@ public class SendSoapMessageAction extends SendMessageAction {
      */
     public void setAttachmentData(String attachmentData) {
         this.attachmentData = attachmentData;
+    }
+    
+    /**
+     * Sets the fork send action value which defines if the
+     * send action shall be executed as a thread.
+     *
+     * @param forkSendAction the fork send action value to set
+     */
+    public void setForkSendAction(Boolean forkSendAction) {
+        this.forkSendAction = forkSendAction;
     }
 }

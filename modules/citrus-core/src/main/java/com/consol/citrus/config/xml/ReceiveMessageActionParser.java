@@ -60,6 +60,11 @@ public class ReceiveMessageActionParser implements BeanDefinitionParser {
             builder.addPropertyValue("receiveTimeout", Long.valueOf(receiveTimeout));
         }
         
+        String receiveTimeoutInterval = element.getAttribute("timeout-interval");
+        if(StringUtils.hasText(receiveTimeoutInterval)) {
+            builder.addPropertyValue("receiveTimeoutInterval", Long.valueOf(receiveTimeoutInterval));
+        }
+        
         Element messageSelectorElement = DomUtils.getChildElementByTagName(element, "selector");
         if (messageSelectorElement != null) {
             Element selectorStringElement = DomUtils.getChildElementByTagName(messageSelectorElement, "value");

@@ -34,6 +34,9 @@ public class SendSoapMessageActionParser extends SendMessageActionParser {
         BeanDefinitionBuilder builder = BeanDefinitionBuilder.genericBeanDefinition("com.consol.citrus.ws.actions.SendSoapMessageAction");
         
         SoapAttachmentParser.parseAttachment(builder, element, parserContext);
+        
+        if (element.getAttribute("fork").equalsIgnoreCase("true"))
+            builder.addPropertyValue("forkSendAction", true);
 
         return builder;
     }

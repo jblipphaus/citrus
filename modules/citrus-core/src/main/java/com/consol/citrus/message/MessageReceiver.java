@@ -25,29 +25,48 @@ import org.springframework.integration.core.Message;
 public interface MessageReceiver {
     /**
      * Receive message.
-     * @return
+     * @return the message
      */
     Message<?> receive();
     
     /**
      * Receive message with a given timeout.
-     * @param timeout
-     * @return
+     * @param timeout the timeout
+     * @return the message
      */
     Message<?> receive(long timeout);
     
     /**
+     * Receive message with a given timeout and timeout interval.
+     *
+     * @param timeout the timeout
+     * @param timeoutInterval the timeout interval
+     * @return the message
+     */
+    Message<?> receive(long timeout, long timeoutInterval);
+    
+    /**
      * Receive message with a message selector string.
-     * @param selector
-     * @return
+     * @param selector the selector
+     * @return the message
      */
     Message<?> receiveSelected(String selector);
     
     /**
      * Receive message with a message selector and a receive timeout.
-     * @param selector
-     * @param timeout
+     * @param selector the selector
+     * @param timeout the timeout
      * @return
      */
     Message<?> receiveSelected(String selector, long timeout);
+    
+    /**
+     * Receive message with a message selector, a receive timeout and a timeout interval.
+     *
+     * @param selector the selector
+     * @param timeout the timeout
+     * @param timeoutInterval the timeout interval
+     * @return the message
+     */
+    Message<?> receiveSelected(String selector, long timeout, long timeoutInterval);
 }

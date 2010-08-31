@@ -16,6 +16,8 @@
 
 package com.consol.citrus.ws.message;
 
+import org.springframework.integration.core.Message;
+
 import com.consol.citrus.message.AbstractReplyMessageReceiver;
 
 /**
@@ -24,5 +26,64 @@ import com.consol.citrus.message.AbstractReplyMessageReceiver;
  * @author Christoph Deppisch
  */
 public class WebServiceReplyMessageReceiver extends AbstractReplyMessageReceiver {
+    
+    /** The default timeout retry interval. */
+    private final long TIMEOUT_INTERVAL = 1000L;
+    
+    /**
+     * @see com.consol.citrus.message.AbstractReplyMessageReceiver#receiveSelected(java.lang.String, long)
+     */
+    @Override
+    public Message<?> receiveSelected(String selector, long timeout) {
+        return receiveSelected(selector, timeout, TIMEOUT_INTERVAL);
+    }
+    
+    /**
+     * @see com.consol.citrus.message.AbstractReplyMessageReceiver#receiveSelected(java.lang.String, long, long)
+     */
+    @Override
+    public Message<?> receiveSelected(String selector, long timeout, long timeoutInterval) {
+        Message<?> message = receiveSelected(selector);
+        timeout *= 1000;
+        timeoutInterval = timeoutInterval > timeout ? timeout : timeoutInterval;
+        while (message == null && timeout > 0) {
+            try {
+                Thread.sleep(timeoutInterval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            message = receiveSelected(selector);
+            timeout -= timeoutInterval;
+        }
+        return message;
+    }
+    
+    /**
+     * @see com.consol.citrus.message.AbstractReplyMessageReceiver#receive(long)
+     */
+    @Override
+    public Message<?> receive(long timeout) {
+        return receive(timeout, TIMEOUT_INTERVAL);
+    }
+    
+    /**
+     * @see com.consol.citrus.message.AbstractReplyMessageReceiver#receive(long, long)
+     */
+    @Override
+    public Message<?> receive(long timeout, long timeoutInterval) {
+        Message<?> message = receive();
+        timeout *= 1000;
+        timeoutInterval = timeoutInterval > timeout ? timeout : timeoutInterval;
+        while (message == null && timeout > 0) {
+            try {
+                Thread.sleep(timeoutInterval);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            message = receive();
+            timeout -= timeoutInterval;
+        }
+        return message;
+    }
 
 }

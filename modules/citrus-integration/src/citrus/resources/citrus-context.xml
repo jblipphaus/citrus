@@ -69,11 +69,18 @@
     <bean id="soapAttachmentValidator" class="com.consol.citrus.ws.validation.SimpleSoapAttachmentValidator"/>
     
     <bean id="soapFaultValidator" class="com.consol.citrus.ws.validation.SimpleSoapFaultValidator"/>
+    
+    <bean id="taskExecutor" class="org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor">
+      <property name="corePoolSize" value="5" />
+      <property name="maxPoolSize" value="10" />
+      <property name="queueCapacity" value="25" />
+    </bean>
                                                  
     <citrus-ws:message-sender id="webServiceRequestSender"
                               request-url="http://localhost:8071"
                               reply-handler="webServiceReplyHandler"
-                              message-factory="messageFactory"/>
+                              message-factory="messageFactory"
+                              task-executor="taskExecutor"/>
     
     <citrus-ws:reply-message-handler id="webServiceReplyHandler"/>
     

@@ -132,12 +132,26 @@ public class JmsMessageReceiver extends AbstractJmsAdapter implements MessageRec
     public Message<?> receive() {
         return receive(receiveTimeout);
     }
+    
+    /**
+     * @see com.consol.citrus.message.MessageReceiver#receive(long, long)
+     */
+    public Message<?> receive(long timeout, long timeoutInterval) {
+        return receive(timeout);
+    }
 
     /**
      * @see com.consol.citrus.message.MessageReceiver#receiveSelected(java.lang.String)
      */
     public Message<?> receiveSelected(String selector) {
         return receiveSelected(selector, receiveTimeout);
+    }
+    
+    /**
+     * @see com.consol.citrus.message.MessageReceiver#receiveSelected(java.lang.String, long, long)
+     */
+    public Message<?> receiveSelected(String selector, long timeout, long timeoutInterval) {
+        return receiveSelected(selector, timeout);
     }
 
     /**

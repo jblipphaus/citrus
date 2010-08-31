@@ -49,6 +49,13 @@ public abstract class AbstractReplyMessageReceiver implements MessageReceiver, R
     public Message<?> receive(long timeout) {
         return receive();
     }
+    
+    /**
+     * @see com.consol.citrus.message.MessageReceiver#receive(long, long)
+     */
+    public Message<?> receive(long timeout, long timeoutInterval) {
+        return receive(timeout);
+    }
 
     /**
      * @see com.consol.citrus.message.MessageReceiver#receiveSelected(java.lang.String)
@@ -62,6 +69,13 @@ public abstract class AbstractReplyMessageReceiver implements MessageReceiver, R
      */
     public Message<?> receiveSelected(String selector, long timeout) {
         return receiveSelected(selector);
+    }
+    
+    /**
+     * @see com.consol.citrus.message.MessageReceiver#receiveSelected(java.lang.String, long, long)
+     */
+    public Message<?> receiveSelected(String selector, long timeout, long timeoutInterval) {
+        return receiveSelected(selector, timeout);
     }
 
     /**

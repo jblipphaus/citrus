@@ -92,6 +92,12 @@ public class WebServiceMessageSenderParser extends AbstractBeanDefinitionParser 
         if (StringUtils.hasText(replyMessageCorrelator)) {
             builder.addPropertyReference(WSParserConstants.REPLY_CORRELATOR_PROPERTY, replyMessageCorrelator);
         }
+        
+        String taskExecutor = element.getAttribute(WSParserConstants.TASK_EXECUTOR_ATTRIBUTE);
+        
+        if (StringUtils.hasText(taskExecutor)) {
+            builder.addPropertyReference(WSParserConstants.TASK_EXECUTOR_PROPERTY, taskExecutor);
+        }
 
         return builder.getBeanDefinition();
     }

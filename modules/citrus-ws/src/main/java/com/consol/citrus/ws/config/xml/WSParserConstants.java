@@ -71,4 +71,7 @@ public class WSParserConstants {
     
     public static final String USE_ROOT_CONTEXT_PROPERTY = "useRootContextAsParent";
     
+    public static final String TASK_EXECUTOR_ATTRIBUTE = "task-executor";
+    
+    public static final String TASK_EXECUTOR_PROPERTY = "taskExecutor";
 }

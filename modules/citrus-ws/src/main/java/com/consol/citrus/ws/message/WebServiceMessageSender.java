@@ -26,6 +26,8 @@ import javax.xml.transform.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.core.io.InputStreamSource;
+import org.springframework.core.task.SimpleAsyncTaskExecutor;
+import org.springframework.core.task.TaskExecutor;
 import org.springframework.integration.core.Message;
 import org.springframework.integration.message.MessageBuilder;
 import org.springframework.util.Assert;
@@ -57,6 +59,9 @@ public class WebServiceMessageSender extends WebServiceGatewaySupport implements
     
     /** Reply message correlator */
     private ReplyMessageCorrelator correlator = null;
+    
+    /** The task executer. */
+    private TaskExecutor taskExecutor;
     
     /**
      * Logger
@@ -133,6 +138,34 @@ public class WebServiceMessageSender extends WebServiceGatewaySupport implements
      */
     public void setCorrelator(ReplyMessageCorrelator correlator) {
         this.correlator = correlator;
+    }
+    
+    /**
+     * Sets the task executor.
+     *
+     * @param taskExecutor the new task executor
+     */
+    public void setTaskExecutor(TaskExecutor taskExecutor) {
+        this.taskExecutor = taskExecutor;
+    }
+    
+    /**
+     * Gets the task executor.
+     *
+     * @return the task executor
+     */
+    public TaskExecutor getTaskExecutor() {
+        return taskExecutor;
+    }
+    
+    /**
+     * @see org.springframework.ws.client.core.support.WebServiceGatewaySupport#initGateway()
+     */
+    @Override
+    protected void initGateway() {
+        if (taskExecutor == null) {
+            taskExecutor = new SimpleAsyncTaskExecutor();
+        }
     }
     
 	/**

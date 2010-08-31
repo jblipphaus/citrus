@@ -14,7 +14,7 @@
        xmlns:citrus=&quot;http://www.citrusframework.org/schema/config&quot;
        xmlns:citrus-ws=&quot;http://www.citrusframework.org/schema/ws/config&quot;
        xsi:schemaLocation=&quot;
-       http://www.springframework.org/schema/beans 
+       http://www.springframework.org/schema/beans
        http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
        http://www.citrusframework.org/schema/config 
        http://www.citrusframework.org/schema/config/citrus-config.xsd
@@ -580,5 +580,60 @@ Server: Jetty(7.0.0.pre5)
             you do not need to worry about the JMS header encoding done in the SoapAttachmentAwareJmsMessageCallback, because the ws:attachment extension will do all magic for you.
             Just use a extended message receiving action as shown in the example at the beginning of this chapter and you are able to validate the SOAP attachment data.</para>
         </section>
-    </section>    
+    </section>
+    
+    <section id="soap-thread-support">
+        <title>SOAP thread support</title>
+        
+        <para>You can decouple a SOAP send action as an own thread by using the argument <emphasis>&quot;fork&quot;</emphasis> as shown in the example below.
+        This will help if the response time is long and you want to continue with other actions while waiting for the SOAP response.</para>
+        
+        <programlisting>&lt;ws:send with=&quot;webServiceRequestSender&quot; fork=&quot;true&quot;&gt;
+  &lt;message&gt;
+    &lt;data&gt;
+      &lt;![CDATA[
+        &lt;ns0:SoapMessageWithAttachmentRequest xmlns:ns0=&quot;http://www.consol.de/schemas/samples/sample.xsd&quot;&gt;
+          &lt;ns0:Operation&gt;Read the attachment&lt;/ns0:Operation&gt;
+        &lt;/ns0:SoapMessageWithAttachmentRequest&gt;
+      ]]&gt;
+    &lt;/data&gt;
+  &lt;/message&gt;
+&lt;/ws:send&gt;</programlisting>
+        
+        <para>With the use of <emphasis>&quot;fork&quot;</emphasis> you can avoid using a &lt;parallel&gt;/&lt;sequential&gt; construct.
+        You can define the task executer that handles the threads in the Citrus context as shown below.
+        By default <emphasis>&quot;SimpleAsyncTaskExecutor&quot;</emphasis> is used.</para>
+        
+        <programlisting>&lt;bean id=&quot;taskExecutor&quot; class=&quot;org.springframework.scheduling.concurrent.ThreadPoolTaskExecutor&quot;&gt;
+  &lt;property name=&quot;corePoolSize&quot; value=&quot;5&quot; /&gt;
+  &lt;property name=&quot;maxPoolSize&quot; value=&quot;10&quot; /&gt;
+  &lt;property name=&quot;queueCapacity&quot; value=&quot;25&quot; /&gt;
+&lt;/bean&gt;
+                                             
+&lt;citrus-ws:message-sender id=&quot;webServiceRequestSender&quot;
+    request-url=&quot;http://localhost:8071&quot;
+    reply-handler=&quot;webServiceReplyHandler&quot;
+    message-factory=&quot;messageFactory&quot;
+    task-executor=&quot;taskExecutor&quot;/&gt;</programlisting>
+    
+        <important>It is higly recommended to use the <emphasis>&quot;timeout&quot;</emphasis> argument in a receive action when the corresponding send action is forked.
+        Otherwise the receive action will most likely fail, because the response message has not arrived yet.
+        The <emphasis>&quot;timeout&quot;</emphasis> argument will define the time the receive action will retry to receive the message.
+        You can also define a custom value for the interval between retries, default is 1000 milliseconds.
+            <programlisting>
+&lt;receive with=&quot;webServiceReplyHandler&quot; timeout=&quot;10&quot; timeout-interval=&quot;500&quot;&gt;
+  &lt;message schema-validation=&quot;false&quot;&gt;
+    &lt;data&gt;
+      &lt;![CDATA[
+        &lt;ns0:SoapMessageWithAttachmentResponse xmlns:ns0=&quot;http://www.consol.de/schemas/samples/sample.xsd&quot;&gt;
+          &lt;ns0:Operation&gt;Read the attachment&lt;/ns0:Operation&gt;
+          &lt;ns0:Success&gt;true&lt;/ns0:Success&gt;
+        &lt;/ns0:SoapMessageWithAttachmentResponse&gt;
+      ]]&gt;
+    &lt;/data&gt;
+  &lt;/message&gt;
+&lt;/receive&gt;
+            </programlisting>
+        </important>
+    </section>   
 </chapter>

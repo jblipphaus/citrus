@@ -340,4 +340,63 @@ public class ReceiveSoapMessageActionTest extends AbstractBaseTest {
         
         verify(messageReceiver, attachmentValidator, messageValidator);
     }
+    
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testSoapMessageWithTimeout() throws Exception {
+        ReceiveSoapMessageAction soapMessageAction = new ReceiveSoapMessageAction();
+        soapMessageAction.setMessageReceiver(messageReceiver);
+        soapMessageAction.setAttachmentValidator(attachmentValidator);
+        soapMessageAction.setValidator(messageValidator);
+        soapMessageAction.setMessageData("<TestRequest><Message>Hello World!</Message></TestRequest>");
+        soapMessageAction.setReceiveTimeout(42L);
+        
+        Map<String, Object> controlHeaders = new HashMap<String, Object>();
+        Message controlMessage = MessageBuilder.withPayload("<TestRequest><Message>Hello World!</Message></TestRequest>")
+                                    .copyHeaders(controlHeaders)
+                                    .build();
+        
+        reset(messageReceiver, attachmentValidator, messageValidator);
+        
+        expect(messageReceiver.receive(42L)).andReturn(controlMessage);
+        
+        messageValidator.validateMessage((Message)anyObject(), (TestContext)anyObject(), (ValidationContext)anyObject());
+        expectLastCall().once();
+        
+        replay(messageReceiver, attachmentValidator, messageValidator);
+        
+        soapMessageAction.execute(context);
+        
+        verify(messageReceiver, attachmentValidator, messageValidator);
+    }
+    
+    @Test
+    @SuppressWarnings("unchecked")
+    public void testSoapMessageWithTimeoutAndSelector() throws Exception {
+        ReceiveSoapMessageAction soapMessageAction = new ReceiveSoapMessageAction();
+        soapMessageAction.setMessageReceiver(messageReceiver);
+        soapMessageAction.setAttachmentValidator(attachmentValidator);
+        soapMessageAction.setValidator(messageValidator);
+        soapMessageAction.setMessageData("<TestRequest><Message>Hello World!</Message></TestRequest>");
+        soapMessageAction.setReceiveTimeout(42L);
+        soapMessageAction.setMessageSelectorString("Hello Citrus");
+        
+        Map<String, Object> controlHeaders = new HashMap<String, Object>();
+        Message controlMessage = MessageBuilder.withPayload("<TestRequest><Message>Hello World!</Message></TestRequest>")
+                                    .copyHeaders(controlHeaders)
+                                    .build();
+        
+        reset(messageReceiver, attachmentValidator, messageValidator);
+        
+        expect(messageReceiver.receiveSelected("Hello Citrus", 42L)).andReturn(controlMessage);
+        
+        messageValidator.validateMessage((Message)anyObject(), (TestContext)anyObject(), (ValidationContext)anyObject());
+        expectLastCall().once();
+        
+        replay(messageReceiver, attachmentValidator, messageValidator);
+        
+        soapMessageAction.execute(context);
+        
+        verify(messageReceiver, attachmentValidator, messageValidator);
+    }
 }
