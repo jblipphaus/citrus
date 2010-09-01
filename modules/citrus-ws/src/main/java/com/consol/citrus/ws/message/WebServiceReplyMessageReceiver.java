@@ -43,10 +43,10 @@ public class WebServiceReplyMessageReceiver extends AbstractReplyMessageReceiver
      */
     @Override
     public Message<?> receiveSelected(String selector, long timeout, long timeoutInterval) {
-        Message<?> message = receiveSelected(selector);
         timeout *= 1000;
         timeoutInterval = timeoutInterval > timeout ? timeout : timeoutInterval;
-        while (message == null && timeout > 0) {
+        Message<?> message = receiveSelected(selector);
+        while (message == null && timeout >= timeoutInterval) {
             try {
                 Thread.sleep(timeoutInterval);
             } catch (InterruptedException e) {
@@ -54,6 +54,14 @@ public class WebServiceReplyMessageReceiver extends AbstractReplyMessageReceiver
             }
             message = receiveSelected(selector);
             timeout -= timeoutInterval;
+        }
+        if (message == null && timeout > 0) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            message = receiveSelected(selector);
         }
         return message;
     }
@@ -71,10 +79,10 @@ public class WebServiceReplyMessageReceiver extends AbstractReplyMessageReceiver
      */
     @Override
     public Message<?> receive(long timeout, long timeoutInterval) {
-        Message<?> message = receive();
         timeout *= 1000;
         timeoutInterval = timeoutInterval > timeout ? timeout : timeoutInterval;
-        while (message == null && timeout > 0) {
+        Message<?> message = receive();
+        while (message == null && timeout >= timeoutInterval) {
             try {
                 Thread.sleep(timeoutInterval);
             } catch (InterruptedException e) {
@@ -82,6 +90,14 @@ public class WebServiceReplyMessageReceiver extends AbstractReplyMessageReceiver
             }
             message = receive();
             timeout -= timeoutInterval;
+        }
+        if (message == null && timeout > 0) {
+            try {
+                Thread.sleep(timeout);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+            message = receive();
         }
         return message;
     }
