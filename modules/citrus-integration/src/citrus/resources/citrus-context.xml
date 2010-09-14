@@ -64,7 +64,7 @@
                                              context-config-location="classpath:com/consol/citrus/ws/citrus-ws-servlet.xml"
                                              resource-base="src/citrus/resources"/>
 
-    <bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory"/>
+    <bean id="messageFactory" class="com.consol.citrus.ws.message.TransportHeaderAwareSaajSoapMessageFactory"/>
     
     <bean id="soapAttachmentValidator" class="com.consol.citrus.ws.validation.SimpleSoapAttachmentValidator"/>
     

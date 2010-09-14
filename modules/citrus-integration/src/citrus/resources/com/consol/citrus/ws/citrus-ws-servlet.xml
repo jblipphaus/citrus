@@ -10,6 +10,8 @@
         </description>
     </bean>
     
+    <bean id="messageFactory" class="com.consol.citrus.ws.message.TransportHeaderAwareSaajSoapMessageFactory"/>
+    
     <bean id="helloServicePayloadMapping" class="org.springframework.ws.server.endpoint.mapping.PayloadRootQNameEndpointMapping">
         <property name="mappings">
             <props>

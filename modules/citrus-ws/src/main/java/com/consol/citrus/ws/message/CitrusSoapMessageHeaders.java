@@ -24,6 +24,8 @@ import com.consol.citrus.message.CitrusMessageHeaders;
 public abstract class CitrusSoapMessageHeaders {
     /** Citrus ws specific header prefix */
     public static final String SOAP_PREFIX = CitrusMessageHeaders.PREFIX + "soap_";
+    
+    public static final String HTTP_PREFIX = CitrusMessageHeaders.PREFIX + "http_";
 
     /** SOAP action header name */
     public static final String SOAP_ACTION = SOAP_PREFIX + "action";

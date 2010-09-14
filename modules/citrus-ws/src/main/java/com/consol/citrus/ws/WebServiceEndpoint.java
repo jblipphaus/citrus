@@ -52,6 +52,7 @@ import com.consol.citrus.exceptions.CitrusRuntimeException;
 import com.consol.citrus.message.CitrusMessageHeaders;
 import com.consol.citrus.message.MessageHandler;
 import com.consol.citrus.util.MessageUtils;
+import com.consol.citrus.ws.message.TransportHeaderAwareSoapMessage;
 import com.consol.citrus.ws.message.CitrusSoapMessageHeaders;
 
 /**
@@ -115,7 +116,9 @@ public class WebServiceEndpoint implements MessageEndpoint {
                 addSoapBody(response, replyMessage, transformer);
             }
             
-            addSoapHeaders(response, replyMessage);
+            addHeaders(response, replyMessage);
+            
+            //addTransportHeaders(response, replyMessage);
         } else {
             log.warn("Did not receive any reply from message handler '" + messageHandler + "'");
         }
@@ -156,11 +159,11 @@ public class WebServiceEndpoint implements MessageEndpoint {
     }
 
     /**
-     * Translates message headers to SOAP headers in response.
+     * Translates message headers to SOAP and transport headers in response.
      * @param response
      * @param replyMessage
      */
-    private void addSoapHeaders(SoapMessage response, Message<?> replyMessage) throws TransformerException {
+    private void addHeaders(SoapMessage response, Message<?> replyMessage) throws TransformerException {
         for (Entry<String, Object> headerEntry : replyMessage.getHeaders().entrySet()) {
             if(MessageUtils.isSpringInternalHeader(headerEntry.getKey()) || 
                     headerEntry.getKey().startsWith(DEFAULT_JMS_HEADER_PREFIX)) {
@@ -175,6 +178,8 @@ public class WebServiceEndpoint implements MessageEndpoint {
                 
                 transformer.transform(new StringSource(headerEntry.getValue().toString()), 
                         response.getSoapHeader().getResult());
+            } else if (headerEntry.getKey().toLowerCase().startsWith(CitrusSoapMessageHeaders.HTTP_PREFIX) && response instanceof TransportHeaderAwareSoapMessage) {
+                ((TransportHeaderAwareSoapMessage)response).addTransportHeader(headerEntry.getKey().replaceFirst(CitrusSoapMessageHeaders.HTTP_PREFIX, ""), headerEntry.getValue().toString());
             } else if(headerEntry.getKey().startsWith(CitrusMessageHeaders.PREFIX)) {
                 continue; //leave out Citrus internal header entries
             } else {
@@ -208,7 +213,6 @@ public class WebServiceEndpoint implements MessageEndpoint {
      */
     private Message<String> buildRequestMessage(MessageContext messageContext, String requestPayload) {
         WebServiceMessage request = messageContext.getRequest();
-        
         MessageBuilder<String> requestMessageBuilder = MessageBuilder.withPayload(requestPayload);
         
         String[] propertyNames = messageContext.getPropertyNames();
@@ -234,6 +238,8 @@ public class WebServiceEndpoint implements MessageEndpoint {
             if(handleMimeHeaders) {
                 addMimeHeaders(soapMessage, requestMessageBuilder);
             }
+            
+            addTransportHeaders(soapMessage, requestMessageBuilder);
             
             if (StringUtils.hasText(soapMessage.getSoapAction())) {
                 if (soapMessage.getSoapAction().equals("\"\"")) {
@@ -261,6 +267,21 @@ public class WebServiceEndpoint implements MessageEndpoint {
         }
         
         return requestMessageBuilder.build();
+    }
+    
+    /**
+     * Adds the transport headers of the SOAP message to the MessageBuilder.
+     *
+     * @param soapMessage the soap message
+     * @param requestMessageBuilder the request message builder
+     */
+    private void addTransportHeaders(SoapMessage soapMessage, MessageBuilder<String> requestMessageBuilder) {
+        if (soapMessage instanceof TransportHeaderAwareSoapMessage) {
+            Map<String, String> transportHeaders = ((TransportHeaderAwareSoapMessage)soapMessage).getTransportHeaders();
+            for (String headerName : transportHeaders.keySet()) {
+                requestMessageBuilder.setHeader(headerName, transportHeaders.get(headerName));
+            }
+        }
     }
 
     /**

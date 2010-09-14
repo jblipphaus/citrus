@@ -17,6 +17,9 @@
   <body>
     <release version="1.2-SNAPSHOT" date="19.08.2010" description="Latest snapshot release">
         <action dev="jblipphaus" type="add">
+          #316 HTTP headers in SOAP client
+        </action>
+        <action dev="jblipphaus" type="add">
           #303 Added SOAP thread support
         </action>
     	<action dev="jblipphaus" type="add">

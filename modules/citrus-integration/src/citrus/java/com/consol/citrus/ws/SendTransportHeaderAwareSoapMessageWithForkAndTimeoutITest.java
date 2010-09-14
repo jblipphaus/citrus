@@ -25,9 +25,9 @@ import com.consol.citrus.testng.AbstractTestNGCitrusTest;
  * @author Jan Lipphaus
  * @since 2010
  */
-public class SendSoapMessageWithForkAndTimeoutITest extends AbstractTestNGCitrusTest {
+public class SendTransportHeaderAwareSoapMessageWithForkAndTimeoutITest extends AbstractTestNGCitrusTest {
     @Test
-    public void sendSoapMessageWithForkAndTimeoutITest(ITestContext testContext) {
+    public void sendTransportHeaderAwareSoapMessageWithForkAndTimeoutITest(ITestContext testContext) {
         executeTest(testContext);
     }
 }

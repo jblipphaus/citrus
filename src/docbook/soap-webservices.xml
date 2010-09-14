@@ -635,5 +635,58 @@ Server: Jetty(7.0.0.pre5)
 &lt;/receive&gt;
             </programlisting>
         </important>
-    </section>   
+    </section>
+    <section id="soap-transport-headers">
+      <title>SOAP transport header support</title>
+      
+      <para>You can validate transport (http) headers in a SOAP receive action or you can define custom transport headers in your send action.
+      To use this, you have to use a custom message factory which can handle a TransportHeaderAwareSoapMessage. Citrus itself provides implementations
+      that are supporting Saaj or Axiom SOAP messages.</para>
+      
+      <note><para>You have to define the message factory in the citrus context.
+      Use one the following factories:</para>
+      <para>For a Saaj implementation use <literal>&quot;com.consol.citrus.ws.message.TransportHeaderAwareSaajSoapMessageFactory&quot;</literal></para>
+      <para>For an Axiom implementation use <literal>&quot;com.consol.citrus.ws.message.TransportHeaderAwareAxiomSoapMessageFactory&quot;</literal>
+      (for Axiom you must also include axiom-api and axiom-impl dependencies to your project's Maven configuration)</para>
+      
+      <programlisting>&lt;bean id=&quot;messageFactory&quot; class=&quot;com.consol.citrus.ws.message.TransportHeaderAwareSaajSoapMessageFactory&quot;/&gt;
+      
+&lt;citrus-ws:message-sender id=&quot;webServiceRequestSender&quot;
+                              request-url=&quot;http://localhost:8071&quot;
+                              reply-handler=&quot;webServiceReplyHandler&quot;
+                              message-factory=&quot;messageFactory&quot;/&gt;
+    
+&lt;citrus-ws:reply-message-handler id=&quot;webServiceReplyHandler&quot;/&gt;</programlisting></note>
+
+      <para>To define a custom transport header in the send action, just use the normal header option and use <literal>&quot;citrus_http_&quot;</literal> as
+      a prefix for the header name. The header will then be treated as a transport (http) header (without the prefix, which will not be sent).</para>
+      
+      <para>The header validation in the receive action works the same way, except you must not use the prefix for the header name. Just use the headers
+      real name here.</para>
+      
+      <programlisting>&lt;ws:send with=&quot;webServiceRequestSender&quot;&gt;
+  [...]
+  &lt;header&gt;
+    &lt;element name=&quot;citrus_http_Test-Header&quot; value=&quot;foo&quot;/&gt;
+  &lt;/header&gt;
+  [...]
+&lt;/ws:send&gt;
+
+&lt;ws:receive with=&quot;webServiceRequestReceiver&quot;&gt;
+  [...]
+  &lt;header&gt;
+    &lt;element name=&quot;Test-Header&quot; value=&quot;foo&quot;/&gt;
+  &lt;/header&gt;
+  [...]
+&lt;/ws:receive&gt;</programlisting>
+
+      <important><para>You must be extremely careful when defining transport headers in a send action that would be sended anyway.
+      Your header definition may be ignored, may overwrite the other header or may create a duplicate header.</para>
+      
+      <para>It is highly recommended to only use this function for real &quot;custom&quot; headers and you should look for better ways
+      for changing exsisting headers (e.g. the <literal>&quot;citrus_soap_action&quot;</literal> header for setting the SOAPAction header.</para>
+      
+      <para>The header validation otherwise is not affected by the warning above. You may use it to validate both your custom headers or any
+      other transport header.</para></important>
+    </section>
 </chapter>

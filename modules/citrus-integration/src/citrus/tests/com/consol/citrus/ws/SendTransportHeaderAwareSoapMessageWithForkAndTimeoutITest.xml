@@ -6,7 +6,7 @@
               xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-2.5.xsd 
                                   http://www.citrusframework.org/schema/testcase http://www.citrusframework.org/schema/testcase/citrus-testcase.xsd
                                   http://www.citrusframework.org/schema/ws/testcase http://www.citrusframework.org/schema/ws/testcase/citrus-ws-testcase.xsd">
-    <testcase name="SendSoapMessageWithForkAndTimeoutITest">
+    <testcase name="SendTransportHeaderAwareSoapMessageWithForkAndTimeoutITest">
         <meta-info>
             <author>Jan Lipphaus</author>
             <creationdate>2010-08-31</creationdate>
@@ -28,6 +28,9 @@
                         ]]>
                     </data>
                 </message>
+                <header>
+                    <element name="citrus_http_Test-Header" value="foo"/>
+                </header>
                 <ws:attachment content-id="MySoapAttachment" content-type="text/plain">
                     <ws:resource file="classpath:com/consol/citrus/ws/soapAttachment.txt"/>
                 </ws:attachment>
@@ -43,6 +46,9 @@
                         ]]>
                     </data>
                 </message>
+                <header>
+                    <element name="Test-Header" value="foo"/>
+                </header>
                 <extract>
                     <header name="springintegration_jms_messageId" variable="internal_correlation_id"/>
                 </extract>
@@ -63,6 +69,7 @@
                     </data>
                 </message>
                 <header>
+                    <element name="citrus_http_Test-Header2" value="foobar"/>
                     <element name="springintegration_jms_correlationId" value="${internal_correlation_id}"/>
                 </header>
             </send>
@@ -79,6 +86,9 @@
                           ]]>
                       </data>
                   </message>
+                  <header>
+                    <element name="Test-Header2" value="foobar"/>
+                  </header>
               </receive>
             </repeat-onerror-until-true>
         </actions>

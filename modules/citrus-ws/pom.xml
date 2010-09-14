@@ -51,5 +51,18 @@
         <groupId>org.springframework</groupId>
         <artifactId>spring-context</artifactId>
     </dependency>
+    
+    <dependency>
+	    <groupId>org.apache.ws.commons.axiom</groupId>
+	    <artifactId>axiom-api</artifactId>
+	    <version>1.2.9</version>
+        <optional>true</optional>
+	</dependency>
+	<dependency>
+	    <groupId>org.apache.ws.commons.axiom</groupId>
+	    <artifactId>axiom-impl</artifactId>
+	    <version>1.2.9</version>
+        <optional>true</optional>
+	</dependency>
   </dependencies>
 </project>

@@ -19,6 +19,7 @@ package com.consol.citrus.ws.message;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.Iterator;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import javax.xml.transform.*;
@@ -182,7 +183,7 @@ public class WebServiceMessageSender extends WebServiceGatewaySupport implements
 		}
 
 		public void doWithMessage(WebServiceMessage requestMessage) throws IOException, TransformerException {
-			
+		    
 		    SoapMessage soapRequest = ((SoapMessage)requestMessage);
 		    
 		    // Copy payload into soap-body: 
@@ -201,6 +202,8 @@ public class WebServiceMessageSender extends WebServiceGatewaySupport implements
 		        } else if(headerEntry.getKey().toLowerCase().equals(CitrusMessageHeaders.HEADER_CONTENT)) {
 		            transformer.transform(new StringSource(headerEntry.getValue().toString()), 
 		                    soapRequest.getSoapHeader().getResult());
+		        } else if (headerEntry.getKey().toLowerCase().startsWith(CitrusSoapMessageHeaders.HTTP_PREFIX) && requestMessage instanceof TransportHeaderAwareSoapMessage) {
+		            ((TransportHeaderAwareSoapMessage)soapRequest).addTransportHeader(headerEntry.getKey().replaceFirst(CitrusSoapMessageHeaders.HTTP_PREFIX, ""), headerEntry.getValue().toString());
 		        } else {
 		            SoapHeaderElement headerElement;
 		            if(QNameUtils.validateQName(headerEntry.getKey())) {
@@ -253,6 +256,15 @@ public class WebServiceMessageSender extends WebServiceGatewaySupport implements
 	                while (iter.hasNext()) {
 	                    SoapHeaderElement headerEntry = (SoapHeaderElement) iter.next();
 	                    responseMessageBuilder.setHeader(headerEntry.getName().getLocalPart(), headerEntry.getText());
+	                }
+	            }
+	            
+	            if (soapMessage instanceof TransportHeaderAwareSoapMessage) {
+	                TransportHeaderAwareSoapMessage transportHeaderAwareSoapMessage = (TransportHeaderAwareSoapMessage)soapMessage;
+	                Map<String, String> transportHeaders = transportHeaderAwareSoapMessage.getTransportHeaders();
+
+	                for (String headerName : transportHeaders.keySet()) {
+	                    responseMessageBuilder.setHeader(headerName, transportHeaders.get(headerName));
 	                }
 	            }
 	            

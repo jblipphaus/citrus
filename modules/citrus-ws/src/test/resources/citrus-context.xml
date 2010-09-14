@@ -20,7 +20,7 @@
       </property>
    </bean>
     
-   <bean id="messageFactory" class="org.springframework.ws.soap.saaj.SaajSoapMessageFactory"/>
+   <bean id="messageFactory" class="com.consol.citrus.ws.message.TransportHeaderAwareSaajSoapMessageFactory"/>
    
    <bean id="soapFaultValidator" class="com.consol.citrus.ws.validation.SimpleSoapFaultValidator"/>
 </beans>
